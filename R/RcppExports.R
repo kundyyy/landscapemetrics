@@ -64,6 +64,10 @@ rcpp_get_coocurrence_matrix <- function(x, directions) {
     .Call('_landscapemetrics_rcpp_get_coocurrence_matrix', PACKAGE = 'landscapemetrics', x, directions)
 }
 
+rcpp_get_coocurrence_matrix_par <- function(x, directions, num_cores) {
+    .Call('_landscapemetrics_rcpp_get_coocurrence_matrix_par', PACKAGE = 'landscapemetrics', x, directions, num_cores)
+}
+
 rcpp_get_coocurrence_matrix_diag <- function(x, directions) {
     .Call('_landscapemetrics_rcpp_get_coocurrence_matrix_diag', PACKAGE = 'landscapemetrics', x, directions)
 }
