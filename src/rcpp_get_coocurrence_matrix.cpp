@@ -98,7 +98,7 @@ IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
     // Setting the cores
     omp_set_num_threads(num_cores);
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
     for (unsigned col = 0; col < ncols; col++) {
         for (unsigned row = 0; row < nrows; row++) {
             const int tmp = x[col * nrows + row];
@@ -150,7 +150,10 @@ bench::mark(
     iterations = 1000,
     check = FALSE)
 
-rcpp_get_coocurrence_matrix_par(mat, four, 32)
+rcpp_get_coocurrence_matrix(mat, four)
+rcpp_get_coocurrence_matrix_par(mat, four, 1)
+rcpp_get_coocurrence_matrix_par(mat, four, 2)
+rcpp_get_coocurrence_matrix_par(mat, four, 5)
 
 test <- NLMR::nlm_mpd(5000, 5000) %>%
     landscapetools::util_classify(weighting = c(0.5, 0.15, 0.15, 0.05, 0.05, 0.1))
