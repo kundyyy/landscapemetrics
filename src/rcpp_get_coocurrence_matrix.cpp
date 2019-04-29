@@ -68,8 +68,8 @@ IntegerMatrix rcpp_get_coocurrence_matrix(const IntegerMatrix x,
 
 // [[Rcpp::export]]
 IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
-                                          const arma::imat directions,
-                                          const int num_cores) {
+                                              const arma::imat directions,
+                                              const int num_cores) {
 
     const int na = NA_INTEGER;
     const unsigned ncols = x.ncol();
@@ -78,17 +78,17 @@ IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
     std::vector<int> classes = rcpp_get_unique_values(x);
     std::map<int, unsigned> class_index = get_class_index_map(classes);
 
-    unsigned n_classes = class_index.size();
+    const unsigned n_classes = class_index.size();
     std::vector<std::vector<unsigned> > cooc_mat(n_classes,
                                                  std::vector<unsigned>(n_classes));
 
     // create neighbors coordinates
     IntegerMatrix tmp = rcpp_create_neighborhood(directions);
-    int neigh_len = tmp.nrow();
+    const int neigh_len = tmp.nrow();
     std::vector<std::vector<int> > neig_coords;
     for (int row = 0; row < neigh_len; row++) {
         IntegerVector a = tmp.row(row);
-        std::vector<int> b(a.begin(), a.end());
+        const std::vector<int> b(a.begin(), a.end());
         neig_coords.push_back(b);
     }
 
@@ -97,8 +97,12 @@ IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
 
     // Setting the cores
     omp_set_num_threads(num_cores);
-
-#pragma omp parallel for
+#pragma omp parallel default(none) shared(class_index, neig_coords, cooc_mat)
+{
+    // per thread
+    std::vector<std::vector<unsigned> > cooc_mat_par(n_classes,
+                                                     std::vector<unsigned>(n_classes));
+#pragma omp for
     for (unsigned col = 0; col < ncols; col++) {
         for (unsigned row = 0; row < nrows; row++) {
             const int tmp = x[col * nrows + row];
@@ -116,23 +120,32 @@ IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
                     if (tmp == na)
                         continue;
                     unsigned neig_class = class_index[tmp];
-                    cooc_mat[focal_class][neig_class]++;
+                    cooc_mat_par[focal_class][neig_class]++;
                 }
             }
         }
     }
 
-    IntegerMatrix result(n_classes, n_classes);
-    for (unsigned col = 0; col < cooc_mat.size(); col++) {
-        for (unsigned row = 0; row < cooc_mat[col].size(); row++) {
-            result(col, row) = cooc_mat[col][row];
+    // copy the parallel partial results to the final cooc_mat
+    for(auto focal_class = 0; focal_class < n_classes; focal_class++) {
+        for(auto neig_class = 0; neig_class < n_classes; neig_class++) {
+#pragma omp critical
+            cooc_mat[focal_class][neig_class] += cooc_mat_par[focal_class][neig_class];
         }
     }
+}
 
-    // add names
-    List u_names = List::create(classes, classes);
-    result.attr("dimnames") = u_names;
-    return result;
+IntegerMatrix result(n_classes, n_classes);
+for (unsigned col = 0; col < cooc_mat.size(); col++) {
+    for (unsigned row = 0; row < cooc_mat[col].size(); row++) {
+        result(col, row) = cooc_mat[col][row];
+    }
+}
+
+// add names
+List u_names = List::create(classes, classes);
+result.attr("dimnames") = u_names;
+return result;
 }
 
 /*** R
@@ -143,10 +156,22 @@ test <- landscapemetrics::augusta_nlcd
 mat <- raster::as.matrix(test)
 four <- as.matrix(4)
 
+test <- raster("~/Downloads/lc_2008_4bit_clip.tif")
+
+not_par = landscapemetrics:::rcpp_get_coocurrence_matrix(mat, four)
+cores_1 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 1)
+cores_2 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 2)
+cores_3 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 3)
+cores_4 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 4)
+
+identical(not_par, cores_4)
+
 bench::mark(
-    cores_1 = rcpp_get_coocurrence_matrix(mat, four),
-    cores_4 = rcpp_get_coocurrence_matrix_par(mat, four, 4),
-    cores_8 = rcpp_get_coocurrence_matrix_par(mat, four, 8),
+    not_par = landscapemetrics:::rcpp_get_coocurrence_matrix(mat, four),
+    cores_1 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 1),
+    cores_2 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 2),
+    cores_3 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 3),
+    cores_4 = landscapemetrics:::rcpp_get_coocurrence_matrix_par(mat, four, 4),
     iterations = 1000,
     check = FALSE)
 
