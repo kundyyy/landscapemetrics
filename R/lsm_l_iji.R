@@ -142,7 +142,7 @@ lsm_l_iji_calc <- function(landscape, verbose, n_cores) {
 
     if (ncol(adjacencies) < 3) {
 
-        if(isTRUE(verbose)) {
+        if (verbose) {
             warning("Number of classes must be >= 3, IJI = NA.", call. = FALSE)
         }
 
