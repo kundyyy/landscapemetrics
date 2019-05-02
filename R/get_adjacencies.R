@@ -11,6 +11,8 @@
 #'  "triangle" for a triangular matrix counting adjacencies only once.
 #' @param upper Logical value indicating whether the upper triangle of the adjacency matrix
 #' should be returned (default FALSE).
+#' @param n_cores Parameter to control number of cores to be used to calculate the adjacencies (default 1, single threaded). Max n_cores equals the core of your operating machine.
+
 #'
 #' @details
 #' A fast implementation with Rcpp to calculate the adjacency matrix for raster.
@@ -53,7 +55,8 @@ get_adjacencies <- function(landscape,
 get_adjacencies.RasterLayer <- function(landscape,
                                         neighbourhood = 4,
                                         what = "full",
-                                        upper = FALSE){
+                                        upper = FALSE,
+                                        n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -62,7 +65,8 @@ get_adjacencies.RasterLayer <- function(landscape,
     result <- lapply(raster::as.list(landscape), function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(raster::as.matrix(x),
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
@@ -101,7 +105,8 @@ get_adjacencies.RasterLayer <- function(landscape,
 get_adjacencies.RasterStack <- function(landscape,
                                         neighbourhood = 4,
                                         what = "full",
-                                        upper = FALSE){
+                                        upper = FALSE,
+                                        n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -110,7 +115,8 @@ get_adjacencies.RasterStack <- function(landscape,
     result <- lapply(raster::as.list(landscape), function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(raster::as.matrix(x),
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
@@ -149,7 +155,8 @@ get_adjacencies.RasterStack <- function(landscape,
 get_adjacencies.RasterBrick <- function(landscape,
                                         neighbourhood = 4,
                                         what = "full",
-                                        upper = FALSE){
+                                        upper = FALSE,
+                                        n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -158,7 +165,8 @@ get_adjacencies.RasterBrick <- function(landscape,
     result <- lapply(raster::as.list(landscape), function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(raster::as.matrix(x),
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
@@ -197,7 +205,8 @@ get_adjacencies.RasterBrick <- function(landscape,
 get_adjacencies.stars <- function(landscape,
                                   neighbourhood = 4,
                                   what = "full",
-                                  upper = FALSE){
+                                  upper = FALSE,
+                                  n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -208,7 +217,8 @@ get_adjacencies.stars <- function(landscape,
     result <- lapply(raster::as.list(landscape), function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(raster::as.matrix(x),
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
@@ -247,7 +257,8 @@ get_adjacencies.stars <- function(landscape,
 get_adjacencies.list <- function(landscape,
                                  neighbourhood = 4,
                                  what = "full",
-                                 upper = FALSE){
+                                 upper = FALSE,
+                                 n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -256,7 +267,8 @@ get_adjacencies.list <- function(landscape,
     result <- lapply(landscape, function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(raster::as.matrix(x),
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
@@ -295,7 +307,8 @@ get_adjacencies.list <- function(landscape,
 get_adjacencies.matrix <- function(landscape,
                                    neighbourhood = 4,
                                    what = "full",
-                                   upper = FALSE){
+                                   upper = FALSE,
+                                   n_cores = 1){
 
     if (!identical(neighbourhood, 4) && !identical(neighbourhood, 8) && !is.matrix(neighbourhood)) {
         stop("neighbourhood must be either 4, 8 or a binary matrix where the ones define the neighbourhood.", call. = FALSE)
@@ -304,7 +317,8 @@ get_adjacencies.matrix <- function(landscape,
     result <- lapply(list(landscape), function(x) {
 
         adjacencies <- rcpp_get_coocurrence_matrix(x,
-                                                   as.matrix(neighbourhood))
+                                                   as.matrix(neighbourhood),
+                                                   n_cores = n_cores)
 
         if (!upper) {
             if (what == "like") {
