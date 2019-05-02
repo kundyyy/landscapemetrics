@@ -2,7 +2,8 @@
 #'
 #' @description Percentage of Like Adjacencies (Aggregation metric)
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{PLADJ = (\frac{g_{ij}} {\sum \limits_{k = 1}^{m} g_{ik}}) * 100}
@@ -34,15 +35,15 @@
 #' web site: http://www.umass.edu/landeco/research/fragstats/fragstats.html.
 #'
 #' @export
-lsm_l_pladj <- function(landscape)
-    UseMethod("lsm_l_pladj")
+lsm_l_pladj <- function(landscape, n_cores) UseMethod("lsm_l_pladj")
 
 #' @name lsm_l_pladj
 #' @export
-lsm_l_pladj.RasterLayer <- function(landscape) {
+lsm_l_pladj.RasterLayer <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_pladj_calc)
+                     FUN = lsm_l_pladj_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -54,10 +55,11 @@ lsm_l_pladj.RasterLayer <- function(landscape) {
 
 #' @name lsm_l_pladj
 #' @export
-lsm_l_pladj.RasterStack <- function(landscape) {
+lsm_l_pladj.RasterStack <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_pladj_calc)
+                     FUN = lsm_l_pladj_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -69,10 +71,11 @@ lsm_l_pladj.RasterStack <- function(landscape) {
 
 #' @name lsm_l_pladj
 #' @export
-lsm_l_pladj.RasterBrick <- function(landscape) {
+lsm_l_pladj.RasterBrick <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_pladj_calc)
+                     FUN = lsm_l_pladj_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -84,12 +87,13 @@ lsm_l_pladj.RasterBrick <- function(landscape) {
 
 #' @name lsm_l_pladj
 #' @export
-lsm_l_pladj.stars <- function(landscape) {
+lsm_l_pladj.stars <- function(landscape, n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_pladj_calc)
+                     FUN = lsm_l_pladj_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -102,10 +106,11 @@ lsm_l_pladj.stars <- function(landscape) {
 
 #' @name lsm_l_pladj
 #' @export
-lsm_l_pladj.list <- function(landscape) {
+lsm_l_pladj.list <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = landscape,
-                     FUN = lsm_l_pladj_calc)
+                     FUN = lsm_l_pladj_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -115,7 +120,7 @@ lsm_l_pladj.list <- function(landscape) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_pladj_calc <- function(landscape) {
+lsm_l_pladj_calc <- function(landscape, n_cores = 1) {
 
     if(class(landscape) != "matrix") {
         landscape <- raster::as.matrix(landscape)
@@ -127,7 +132,8 @@ lsm_l_pladj_calc <- function(landscape) {
                                    return_raster = FALSE)[[1]]
 
     tb <- rcpp_get_coocurrence_matrix(landscape_padded,
-                                      directions = as.matrix(4))
+                                      directions = as.matrix(4),
+                                      n_cores)
 
     like_adjacencies <- sum(diag(tb)[-1])
     total_adjacencies <- sum(tb[,-1])

@@ -2,7 +2,8 @@
 #'
 #' @description Clumpiness index (Aggregation metric)
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{Given G_{i} = \Bigg(\frac{g_{ii}}{ (\sum\limits_{k=1}^m g_{ik}) - min e_{i}} \Bigg)}
@@ -38,14 +39,15 @@
 #' web site: http://www.umass.edu/landeco/research/fragstats/fragstats.html
 #'
 #' @export
-lsm_c_clumpy <- function(landscape) UseMethod("lsm_c_clumpy")
+lsm_c_clumpy <- function(landscape, n_cores) UseMethod("lsm_c_clumpy")
 
 #' @name lsm_c_clumpy
 #' @export
-lsm_c_clumpy.RasterLayer <- function(landscape) {
+lsm_c_clumpy.RasterLayer <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_c_clumpy_calc)
+                     FUN = lsm_c_clumpy_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -57,10 +59,11 @@ lsm_c_clumpy.RasterLayer <- function(landscape) {
 
 #' @name lsm_c_clumpy
 #' @export
-lsm_c_clumpy.RasterStack <- function(landscape) {
+lsm_c_clumpy.RasterStack <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_c_clumpy_calc)
+                     FUN = lsm_c_clumpy_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -72,10 +75,11 @@ lsm_c_clumpy.RasterStack <- function(landscape) {
 
 #' @name lsm_c_clumpy
 #' @export
-lsm_c_clumpy.RasterBrick <- function(landscape) {
+lsm_c_clumpy.RasterBrick <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_c_clumpy_calc)
+                     FUN = lsm_c_clumpy_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -87,12 +91,13 @@ lsm_c_clumpy.RasterBrick <- function(landscape) {
 
 #' @name lsm_c_clumpy
 #' @export
-lsm_c_clumpy.stars <- function(landscape) {
+lsm_c_clumpy.stars <- function(landscape, n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_c_clumpy_calc)
+                     FUN = lsm_c_clumpy_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -105,10 +110,11 @@ lsm_c_clumpy.stars <- function(landscape) {
 
 #' @name lsm_c_clumpy
 #' @export
-lsm_c_clumpy.list <- function(landscape) {
+lsm_c_clumpy.list <- function(landscape, n_cores = 1) {
 
     result <- lapply(X = landscape,
-                     FUN = lsm_c_clumpy_calc)
+                     FUN = lsm_c_clumpy_calc,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))

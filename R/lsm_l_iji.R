@@ -2,8 +2,9 @@
 #
 #' @description Interspersion and Juxtaposition index (Aggregation metric)
 #
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
 #' @param verbose Print warning message if not sufficient patches are present
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #
 #' @details
 #' \deqn{IJI = \frac{- \sum \limits_{i = 1}^{m} \sum \limits_{k = i + 1}^{m} \Bigg[ \Bigg( \frac{e_{ik}}{E} \Bigg) ln \Bigg( \frac{e_{ik}}{E} \Bigg) \Bigg]}{ln(0.5[m(m - 1)])}  * 100}
@@ -44,11 +45,11 @@
 #'Research Station. 122 p, 351.
 #
 #' @export
-lsm_l_iji <- function(landscape, verbose) UseMethod("lsm_l_iji")
+lsm_l_iji <- function(landscape, verbose, n_cores) UseMethod("lsm_l_iji")
 
 #' @name lsm_l_iji
 #' @export
-lsm_l_iji.RasterLayer <- function(landscape, verbose = TRUE) {
+lsm_l_iji.RasterLayer <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
@@ -64,7 +65,7 @@ lsm_l_iji.RasterLayer <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_iji
 #' @export
-lsm_l_iji.RasterStack <- function(landscape, verbose = TRUE) {
+lsm_l_iji.RasterStack <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
@@ -80,7 +81,7 @@ lsm_l_iji.RasterStack <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_iji
 #' @export
-lsm_l_iji.RasterBrick <- function(landscape, verbose = TRUE) {
+lsm_l_iji.RasterBrick <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
@@ -96,7 +97,7 @@ lsm_l_iji.RasterBrick <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_iji
 #' @export
-lsm_l_iji.stars <- function(landscape, verbose = TRUE) {
+lsm_l_iji.stars <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
@@ -114,7 +115,7 @@ lsm_l_iji.stars <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_iji
 #' @export
-lsm_l_iji.list <- function(landscape, verbose = TRUE) {
+lsm_l_iji.list <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_iji_calc,
@@ -128,7 +129,7 @@ lsm_l_iji.list <- function(landscape, verbose = TRUE) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_iji_calc <- function(landscape, verbose) {
+lsm_l_iji_calc <- function(landscape, verbose, n_cores) {
 
     # convert to matrix
     if(class(landscape) != "matrix") {
@@ -136,7 +137,8 @@ lsm_l_iji_calc <- function(landscape, verbose) {
     }
 
     adjacencies <- rcpp_get_coocurrence_matrix(landscape,
-                                               as.matrix(4))
+                                               as.matrix(4),
+                                               n_cores)
 
     if (ncol(adjacencies) < 3) {
 

@@ -8,9 +8,7 @@ using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::plugins(openmp)]]
 IntegerMatrix rcpp_get_coocurrence_matrix(const IntegerMatrix x,
-                                          const arma::imat directions);
-
-IntegerMatrix rcpp_get_coocurrence_matrix_par(const IntegerMatrix x,
                                           const arma::imat directions,
-                                          const int num_cores);
+                                          const int n_cores);
+
 #endif // GET_COOCURRENCE_MATRIX_H

@@ -2,8 +2,9 @@
 #'
 #' @description Contagion (Aggregation metric)
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
 #' @param verbose Print warning message if not sufficient patches are present
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{CONTAG = 1 + \frac{\sum \limits_{q = 1}^{n_{a}} p_{q} ln(p_{q})}{2ln(t)}}
@@ -44,15 +45,18 @@
 #' contagion indices for landscape analysis. Landscape ecology, 11, 197–202.
 #'
 #' @export
-lsm_l_contag <- function(landscape, verbose) UseMethod("lsm_l_contag")
+lsm_l_contag <- function(landscape, verbose,
+                         n_cores) UseMethod("lsm_l_contag")
 
 #' @name lsm_l_contag
 #' @export
-lsm_l_contag.RasterLayer <- function(landscape, verbose = TRUE) {
+lsm_l_contag.RasterLayer <- function(landscape, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_contag_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -64,11 +68,13 @@ lsm_l_contag.RasterLayer <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_contag
 #' @export
-lsm_l_contag.RasterStack <- function(landscape, verbose = TRUE) {
+lsm_l_contag.RasterStack <- function(landscape, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_contag_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -80,11 +86,13 @@ lsm_l_contag.RasterStack <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_contag
 #' @export
-lsm_l_contag.RasterBrick <- function(landscape, verbose = TRUE) {
+lsm_l_contag.RasterBrick <- function(landscape, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_contag_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -96,13 +104,15 @@ lsm_l_contag.RasterBrick <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_contag
 #' @export
-lsm_l_contag.stars <- function(landscape, verbose = TRUE) {
+lsm_l_contag.stars <- function(landscape, verbose = TRUE,
+                               n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_contag_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -114,11 +124,13 @@ lsm_l_contag.stars <- function(landscape, verbose = TRUE) {
 
 #' @name lsm_l_contag
 #' @export
-lsm_l_contag.list <- function(landscape, verbose = TRUE) {
+lsm_l_contag.list <- function(landscape, verbose = TRUE,
+                              n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_contag_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -128,7 +140,7 @@ lsm_l_contag.list <- function(landscape, verbose = TRUE) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_contag_calc <- function(landscape, verbose) {
+lsm_l_contag_calc <- function(landscape, verbose, n_cores) {
 
     # convert to raster to matrix
     if(class(landscape) != "matrix") {
@@ -154,7 +166,8 @@ lsm_l_contag_calc <- function(landscape, verbose) {
     } else {
 
         adjacencies <- rcpp_get_coocurrence_matrix(landscape,
-                                                   as.matrix(4))
+                                                   as.matrix(4),
+                                                   n_cores)
 
         esum <- sum(adjacencies / sum(adjacencies) *
                         log(adjacencies / sum(adjacencies)), na.rm = TRUE)

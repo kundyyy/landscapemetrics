@@ -11,6 +11,7 @@
 #' @param base The unit in which entropy is measured.
 #' The default is "log2", which compute entropy in "bits".
 #' "log" and "log10" can be also used.
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' Complexity of a landscape pattern. An overall spatio-thematic complexity metric.
@@ -36,20 +37,23 @@
 lsm_l_joinent <- function(landscape,
                           neighbourhood,
                           ordered,
-                          base) UseMethod("lsm_l_joinent")
+                          base,
+                          n_cores = 1) UseMethod("lsm_l_joinent")
 
 #' @name lsm_l_joinent
 #' @export
 lsm_l_joinent.RasterLayer <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_joinent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -64,13 +68,15 @@ lsm_l_joinent.RasterLayer <- function(landscape,
 lsm_l_joinent.RasterStack <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_joinent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -85,13 +91,15 @@ lsm_l_joinent.RasterStack <- function(landscape,
 lsm_l_joinent.RasterBrick <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_joinent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -106,7 +114,8 @@ lsm_l_joinent.RasterBrick <- function(landscape,
 lsm_l_joinent.stars <- function(landscape,
                                 neighbourhood = 4,
                                 ordered = TRUE,
-                                base = "log2") {
+                                base = "log2",
+                                n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
@@ -114,7 +123,8 @@ lsm_l_joinent.stars <- function(landscape,
                      FUN = lsm_l_joinent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -129,13 +139,15 @@ lsm_l_joinent.stars <- function(landscape,
 lsm_l_joinent.list <- function(landscape,
                                neighbourhood = 4,
                                ordered = TRUE,
-                               base = "log2") {
+                               base = "log2",
+                               n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_joinent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -145,7 +157,11 @@ lsm_l_joinent.list <- function(landscape,
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_joinent_calc <- function(landscape, neighbourhood, ordered, base){
+lsm_l_joinent_calc <- function(landscape,
+                               neighbourhood,
+                               ordered,
+                               base,
+                               n_cores){
 
     # convert to matrix
     if(class(landscape) != "matrix") {
@@ -154,7 +170,8 @@ lsm_l_joinent_calc <- function(landscape, neighbourhood, ordered, base){
 
     coh <- rcpp_get_coocurrence_vector(landscape,
                                        directions = as.matrix(neighbourhood),
-                                       ordered = ordered)
+                                       ordered = ordered,
+                                       n_cores)
 
     cplx <- rcpp_get_entropy(coh, base)
 

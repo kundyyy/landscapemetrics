@@ -11,6 +11,7 @@
 #' @param base The unit in which entropy is measured.
 #' The default is "log2", which compute entropy in "bits".
 #' "log" and "log10" can be also used.
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' Complexity of a landscape pattern configuration.
@@ -38,20 +39,23 @@
 lsm_l_condent <- function(landscape,
                           neighbourhood = 4,
                           ordered = TRUE,
-                          base = "log2") UseMethod("lsm_l_condent")
+                          base = "log2",
+                          n_cores = 1) UseMethod("lsm_l_condent")
 
 #' @name lsm_l_condent
 #' @export
 lsm_l_condent.RasterLayer <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_condent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -66,13 +70,15 @@ lsm_l_condent.RasterLayer <- function(landscape,
 lsm_l_condent.RasterStack <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_condent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -87,13 +93,15 @@ lsm_l_condent.RasterStack <- function(landscape,
 lsm_l_condent.RasterBrick <- function(landscape,
                                       neighbourhood = 4,
                                       ordered = TRUE,
-                                      base = "log2") {
+                                      base = "log2",
+                                      n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_condent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -108,7 +116,8 @@ lsm_l_condent.RasterBrick <- function(landscape,
 lsm_l_condent.stars <- function(landscape,
                                 neighbourhood = 4,
                                 ordered = TRUE,
-                                base = "log2") {
+                                base = "log2",
+                                n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
@@ -116,7 +125,8 @@ lsm_l_condent.stars <- function(landscape,
                      FUN = lsm_l_condent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -131,13 +141,15 @@ lsm_l_condent.stars <- function(landscape,
 lsm_l_condent.list <- function(landscape,
                                neighbourhood = 4,
                                ordered = TRUE,
-                               base = "log2") {
+                               base = "log2",
+                               n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_condent_calc,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
-                     base = base)
+                     base = base,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -147,7 +159,7 @@ lsm_l_condent.list <- function(landscape,
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_condent_calc <- function(landscape, neighbourhood, ordered, base){
+lsm_l_condent_calc <- function(landscape, neighbourhood, ordered, base, n_cores){
 
     # convert to raster to matrix
     if(class(landscape) != "matrix") {
@@ -155,12 +167,14 @@ lsm_l_condent_calc <- function(landscape, neighbourhood, ordered, base){
     }
 
     com <- rcpp_get_coocurrence_matrix(landscape,
-                                       directions = as.matrix(neighbourhood))
+                                       directions = as.matrix(neighbourhood),
+                                       n_cores)
     com_c <- colSums(com)
 
     coh <- rcpp_get_coocurrence_vector(landscape,
                                        directions = as.matrix(neighbourhood),
-                                       ordered = ordered)
+                                       ordered = ordered,
+                                       n_cores)
 
     comp <- rcpp_get_entropy(com_c, base)
     cplx <- rcpp_get_entropy(coh, base)

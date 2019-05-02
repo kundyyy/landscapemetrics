@@ -80,6 +80,63 @@ arma::mat rcpp_get_circle(arma::mat points, double resolution_x, double resoluti
 
     return circle;
 }
+//
+// // [[Rcpp::export]]
+// arma::mat rcpp_get_circle(arma::mat points, double resolution_x, double resolution_y) {
+//
+//     int     class_id = 0;
+//
+//     arma::vec   id,
+//     unique_id;
+//     arma::uvec  temp_id;
+//
+//     arma::mat   circle,
+//     points_temp,
+//     points_corner;
+//
+//     id = points.col(2);
+//     unique_id = id(arma::find_unique(id));
+//
+//     resolution_x = resolution_x / 2;
+//     resolution_y = resolution_y / 2;
+//
+//     circle.set_size(unique_id.n_elem, 2);
+//
+//     for(int i = 0; i < unique_id.n_elem; i++){
+//
+//         class_id = unique_id(i);
+//         temp_id = arma::find(points.col(2) == class_id);
+//         points_temp = points.rows(temp_id);
+//
+//         points_corner.set_size(points_temp.n_rows * 4, 2);
+//
+//         int l = 0;
+//
+//         for(int j = 0; j < points_temp.n_rows; j++){
+//
+//             points_corner(l, 0) = points_temp(j, 0) - resolution_x;
+//             points_corner(l, 1) = points_temp(j, 1) - resolution_y;
+//             l++;
+//
+//             points_corner(l, 0) = points_temp(j, 0) - resolution_x;
+//             points_corner(l, 1) = points_temp(j, 1) + resolution_y;
+//             l++;
+//
+//             points_corner(l, 0) = points_temp(j, 0) + resolution_x;
+//             points_corner(l, 1) = points_temp(j, 1) + resolution_y;
+//             l++;
+//
+//             points_corner(l, 0) = points_temp(j, 0) + resolution_x;
+//             points_corner(l, 1) = points_temp(j, 1) - resolution_y;
+//             l++;
+//         }
+//
+//         circle(i, 0) = class_id;
+//         circle(i, 1) = rcpp_get_max_dist(points_corner); // std::pow((max_dist_fun(points_corner) / 2), 2) * arma::datum::pi;
+//     }
+//
+//     return circle;
+// }
 
 /*** R
 landscape_labeled <- get_patches(landscape,

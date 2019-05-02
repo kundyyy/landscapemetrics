@@ -66,8 +66,8 @@ context("coocurrence vector")
 land_true1_v <- as.vector(land_true1)
 land_true4_v <- as.vector(land_true4)
 
-land_result1_v <- landscapemetrics:::rcpp_get_coocurrence_vector(raster::as.matrix(landscape), directions = as.matrix(4))
-land_result4_v <- landscapemetrics:::rcpp_get_coocurrence_vector(raster::as.matrix(landscape), directions = as.matrix(8))
+land_result1_v <- landscapemetrics:::rcpp_get_coocurrence_vector(raster::as.matrix(landscape), directions = as.matrix(4), 1)
+land_result4_v <- landscapemetrics:::rcpp_get_coocurrence_vector(raster::as.matrix(landscape), directions = as.matrix(8), 1)
 
 test_that("rcpp_get_coocurrence_vector results are correct", {
     expect_equivalent(land_result1_v, land_true1_v)

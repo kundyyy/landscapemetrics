@@ -60,12 +60,8 @@ rcpp_get_composition_vector <- function(x) {
     .Call('_landscapemetrics_rcpp_get_composition_vector', PACKAGE = 'landscapemetrics', x)
 }
 
-rcpp_get_coocurrence_matrix <- function(x, directions) {
-    .Call('_landscapemetrics_rcpp_get_coocurrence_matrix', PACKAGE = 'landscapemetrics', x, directions)
-}
-
-rcpp_get_coocurrence_matrix_par <- function(x, directions, num_cores) {
-    .Call('_landscapemetrics_rcpp_get_coocurrence_matrix_par', PACKAGE = 'landscapemetrics', x, directions, num_cores)
+rcpp_get_coocurrence_matrix <- function(x, directions, n_cores) {
+    .Call('_landscapemetrics_rcpp_get_coocurrence_matrix', PACKAGE = 'landscapemetrics', x, directions, n_cores)
 }
 
 rcpp_get_coocurrence_matrix_diag <- function(x, directions) {
@@ -76,8 +72,8 @@ triangular_index <- function(r, c) {
     .Call('_landscapemetrics_triangular_index', PACKAGE = 'landscapemetrics', r, c)
 }
 
-rcpp_get_coocurrence_vector <- function(x, directions, ordered = TRUE) {
-    .Call('_landscapemetrics_rcpp_get_coocurrence_vector', PACKAGE = 'landscapemetrics', x, directions, ordered)
+rcpp_get_coocurrence_vector <- function(x, directions, ordered = TRUE, n_cores = 1L) {
+    .Call('_landscapemetrics_rcpp_get_coocurrence_vector', PACKAGE = 'landscapemetrics', x, directions, ordered, n_cores)
 }
 
 #' @title First nearest neighbor distance

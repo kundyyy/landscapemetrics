@@ -14,10 +14,11 @@ int triangular_index(int r, int c) {
 // [[Rcpp::export]]
 NumericVector rcpp_get_coocurrence_vector(IntegerMatrix x,
                                           arma::imat directions,
-                                          bool ordered = true) {
+                                          bool ordered = true,
+                                          const int n_cores = 1) {
     NumericVector result;
     // calculate a coocurrence matrix
-    IntegerMatrix y = rcpp_get_coocurrence_matrix(x, directions);
+    IntegerMatrix y = rcpp_get_coocurrence_matrix(x, directions, n_cores);
     if (ordered){
         result = as<NumericVector>(wrap(y));
     } else {

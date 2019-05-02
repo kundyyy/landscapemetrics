@@ -2,10 +2,11 @@
 #'
 #' @description Total (class) edge (Area and Edge metric)
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
 #' @param count_boundary Include landscape boundary in edge length
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{TE = \sum \limits_{k = 1}^{m} e_{ik}}
@@ -42,17 +43,19 @@
 #'
 #' @export
 lsm_c_te <- function(landscape,
-                     count_boundary, directions) UseMethod("lsm_c_te")
+                     count_boundary, directions, n_cores) UseMethod("lsm_c_te")
 
 #' @name lsm_c_te
 #' @export
 lsm_c_te.RasterLayer <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_te_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -65,12 +68,14 @@ lsm_c_te.RasterLayer <- function(landscape,
 #' @name lsm_c_te
 #' @export
 lsm_c_te.RasterStack <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_te_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -83,12 +88,14 @@ lsm_c_te.RasterStack <- function(landscape,
 #' @name lsm_c_te
 #' @export
 lsm_c_te.RasterBrick <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_te_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -101,14 +108,16 @@ lsm_c_te.RasterBrick <- function(landscape,
 #' @name lsm_c_te
 #' @export
 lsm_c_te.stars <- function(landscape,
-                           count_boundary = FALSE, directions = 8) {
+                           count_boundary = FALSE, directions = 8,
+                           n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_te_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -122,12 +131,14 @@ lsm_c_te.stars <- function(landscape,
 #' @name lsm_c_te
 #' @export
 lsm_c_te.list <- function(landscape,
-                          count_boundary = FALSE, directions = 8) {
+                          count_boundary = FALSE, directions = 8,
+                          n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_c_te_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -137,7 +148,8 @@ lsm_c_te.list <- function(landscape,
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_c_te_calc <- function(landscape, count_boundary, directions, resolution = NULL) {
+lsm_c_te_calc <- function(landscape, count_boundary, directions, resolution = NULL,
+                          n_cores) {
 
     # conver raster to matrix
     if (class(landscape) != "matrix") {
@@ -200,7 +212,8 @@ lsm_c_te_calc <- function(landscape, count_boundary, directions, resolution = NU
 
                 # get adjacencies
                 neighbor_matrix <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                               directions = as.matrix(4))
+                                                               directions = as.matrix(4),
+                                                               n_cores)
 
 
                 # sum of all adjacencies between patch id and non-class patches (-999) converted to edge length
@@ -211,14 +224,16 @@ lsm_c_te_calc <- function(landscape, count_boundary, directions, resolution = NU
 
                 # get adjacencies
                 left_right_neighbours <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                                     directions = as.matrix(left_right_matrix))
+                                                                     directions = as.matrix(left_right_matrix),
+                                                                     n_cores)
 
                 # sum of all adjacencies between patch id and non-class patches (-999) converted to edge length
                 edge_ik_left_right <- sum(left_right_neighbours[1 ,2:ncol(left_right_neighbours)]) * resolution_x
 
                 # get adjacencies
                 top_bottom_neighbours <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                                     directions = as.matrix(top_bottom_matrix))
+                                                                     directions = as.matrix(top_bottom_matrix),
+                                                                     n_cores)
 
                 # sum of all adjacencies between patch id and non-class patches (-999) converted to edge length
                 edge_ik_top_bottom <- sum(top_bottom_neighbours[1 ,2:ncol(top_bottom_neighbours)]) * resolution_y

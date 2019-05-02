@@ -2,9 +2,10 @@
 #'
 #' @description Perimeter (Area and edge metric))
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{PERIM = p_{ij}}
@@ -35,15 +36,16 @@
 #' web site: http://www.umass.edu/landeco/research/fragstats/fragstats.html
 #'
 #' @export
-lsm_p_perim <- function(landscape, directions) UseMethod("lsm_p_perim")
+lsm_p_perim <- function(landscape, directions, n_cores) UseMethod("lsm_p_perim")
 
 #' @name lsm_p_perim
 #' @export
-lsm_p_perim.RasterLayer <- function(landscape, directions = 8) {
+lsm_p_perim.RasterLayer <- function(landscape, directions = 8, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_perim_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -55,11 +57,12 @@ lsm_p_perim.RasterLayer <- function(landscape, directions = 8) {
 
 #' @name lsm_p_perim
 #' @export
-lsm_p_perim.RasterStack <- function(landscape, directions = 8) {
+lsm_p_perim.RasterStack <- function(landscape, directions = 8, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_perim_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -71,11 +74,12 @@ lsm_p_perim.RasterStack <- function(landscape, directions = 8) {
 
 #' @name lsm_p_perim
 #' @export
-lsm_p_perim.RasterBrick <- function(landscape, directions = 8) {
+lsm_p_perim.RasterBrick <- function(landscape, directions = 8, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_perim_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -87,13 +91,14 @@ lsm_p_perim.RasterBrick <- function(landscape, directions = 8) {
 
 #' @name lsm_p_perim
 #' @export
-lsm_p_perim.stars <- function(landscape, directions = 8) {
+lsm_p_perim.stars <- function(landscape, directions = 8, n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_perim_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -105,11 +110,12 @@ lsm_p_perim.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_p_perim
 #' @export
-lsm_p_perim.list <- function(landscape, directions = 8) {
+lsm_p_perim.list <- function(landscape, directions = 8, n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_p_perim_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -119,7 +125,7 @@ lsm_p_perim.list <- function(landscape, directions = 8) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_p_perim_calc <- function(landscape, directions, resolution = NULL) {
+lsm_p_perim_calc <- function(landscape, directions, resolution = NULL, n_cores) {
 
     # convert to matrix
     if(class(landscape) != "matrix") {
@@ -172,7 +178,7 @@ lsm_p_perim_calc <- function(landscape, directions, resolution = NULL) {
 
             # get coocurrence matrix
             neighbour_matrix <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                            directions = as.matrix(4))
+                                                            directions = as.matrix(4), n_cores)
 
             # get adjacencies between patches and background cells (-999 always first row of matrix) and convert to perimeter
             perimeter_patch_ij <- neighbour_matrix[1, 2:ncol(neighbour_matrix)] * resolution_x
@@ -183,14 +189,16 @@ lsm_p_perim_calc <- function(landscape, directions, resolution = NULL) {
 
             # get coocurrence matrix in x-direction
             left_right_neighbours <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                                 directions = as.matrix(left_right_matrix))
+                                                                 directions = as.matrix(left_right_matrix),
+                                                                 n_cores)
 
             # get adjacencies between patches and background cells (-999 always first row of matrix) and convert to perimeter
             perimeter_patch_ij_left_right <- left_right_neighbours[1, 2:ncol(left_right_neighbours)] * resolution_x
 
             # get coocurrennce matrix in y-direction
             top_bottom_neighbours <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                                 directions = as.matrix(top_bottom_matrix))
+                                                                 directions = as.matrix(top_bottom_matrix),
+                                                                 n_cores)
 
             # get adjacencies between patches and background cells (-999 always first row of matrix) and convert to perimeter
             perimeter_patch_ij_top_bottom <- top_bottom_neighbours[1, 2:ncol(top_bottom_neighbours)] * resolution_y

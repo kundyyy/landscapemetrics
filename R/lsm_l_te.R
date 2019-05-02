@@ -2,8 +2,9 @@
 #'
 #' @description Total edge (Area and Edge metric)
 #'
-#' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
+#' @param landscape Raster* Layer, Stack, Brick or a list of RasterLayers.
 #' @param count_boundary Include landscape boundary in edge length
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{TE = \sum \limits_{k = 1}^{m} e_{ik}}
@@ -39,15 +40,18 @@
 #' web site: http://www.umass.edu/landeco/research/fragstats/fragstats.html
 #'
 #' @export
-lsm_l_te <- function(landscape, count_boundary) UseMethod("lsm_l_te")
+lsm_l_te <- function(landscape, count_boundary,
+                     n_cores) UseMethod("lsm_l_te")
 
 #' @name lsm_l_te
 #' @export
-lsm_l_te.RasterLayer <- function(landscape,  count_boundary = FALSE) {
+lsm_l_te.RasterLayer <- function(landscape,  count_boundary = FALSE,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_te_calc,
-                     count_boundary = count_boundary)
+                     count_boundary = count_boundary,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -59,11 +63,13 @@ lsm_l_te.RasterLayer <- function(landscape,  count_boundary = FALSE) {
 
 #' @name lsm_l_te
 #' @export
-lsm_l_te.RasterStack <- function(landscape,  count_boundary = FALSE) {
+lsm_l_te.RasterStack <- function(landscape,  count_boundary = FALSE,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_te_calc,
-                     count_boundary = count_boundary)
+                     count_boundary = count_boundary,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -75,11 +81,13 @@ lsm_l_te.RasterStack <- function(landscape,  count_boundary = FALSE) {
 
 #' @name lsm_l_te
 #' @export
-lsm_l_te.RasterBrick <- function(landscape, count_boundary = FALSE) {
+lsm_l_te.RasterBrick <- function(landscape, count_boundary = FALSE,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_te_calc,
-                     count_boundary = count_boundary)
+                     count_boundary = count_boundary,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -91,13 +99,15 @@ lsm_l_te.RasterBrick <- function(landscape, count_boundary = FALSE) {
 
 #' @name lsm_l_te
 #' @export
-lsm_l_te.stars <- function(landscape, count_boundary = FALSE) {
+lsm_l_te.stars <- function(landscape, count_boundary = FALSE,
+                           n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_te_calc,
-                     count_boundary = count_boundary)
+                     count_boundary = count_boundary,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -109,11 +119,13 @@ lsm_l_te.stars <- function(landscape, count_boundary = FALSE) {
 
 #' @name lsm_l_te
 #' @export
-lsm_l_te.list <- function(landscape, count_boundary = FALSE) {
+lsm_l_te.list <- function(landscape, count_boundary = FALSE,
+                          n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_te_calc,
-                     count_boundary = count_boundary)
+                     count_boundary = count_boundary,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -123,7 +135,8 @@ lsm_l_te.list <- function(landscape, count_boundary = FALSE) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_te_calc <- function(landscape, count_boundary, resolution = NULL){
+lsm_l_te_calc <- function(landscape, count_boundary, resolution = NULL,
+                          n_cores){
 
     # conver raster to matrix
     if (class(landscape) != "matrix") {
@@ -145,7 +158,8 @@ lsm_l_te_calc <- function(landscape, count_boundary, resolution = NULL){
     if (isTRUE(resolution_x == resolution_y)) {
 
         neighbor_matrix <- rcpp_get_coocurrence_matrix(landscape,
-                                                       directions = as.matrix(4))
+                                                       directions = as.matrix(4),
+                                                       n_cores)
 
         edge_total <- sum(neighbor_matrix[lower.tri(neighbor_matrix)]) * resolution_x
     }
@@ -162,14 +176,16 @@ lsm_l_te_calc <- function(landscape, count_boundary, resolution = NULL){
 
         left_right_neighbours <-
             rcpp_get_coocurrence_matrix(landscape,
-                                        directions = as.matrix(left_right_matrix))
+                                        directions = as.matrix(left_right_matrix),
+                                        n_cores)
 
         edge_left_right <-
             sum(left_right_neighbours[lower.tri(left_right_neighbours)]) * resolution_x
 
         top_bottom_neighbours <-
             rcpp_get_coocurrence_matrix(raster::as.matrix(landscape),
-                                        directions = as.matrix(top_bottom_matrix))
+                                        directions = as.matrix(top_bottom_matrix),
+                                        n_cores)
 
         edge_top_bottom <-
             sum(top_bottom_neighbours[lower.tri(top_bottom_neighbours)]) * resolution_y
