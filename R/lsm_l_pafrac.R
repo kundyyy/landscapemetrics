@@ -6,6 +6,7 @@
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
 #' @param verbose Print warning message if not sufficient patches are present
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{PAFRAC = \frac{2}{\beta}}
@@ -48,16 +49,18 @@
 #' Clarendon Press, Oxford
 #'
 #' @export
-lsm_l_pafrac <- function(landscape, directions, verbose) UseMethod("lsm_l_pafrac")
+lsm_l_pafrac <- function(landscape, directions, verbose, n_cores) UseMethod("lsm_l_pafrac")
 
 #' @name lsm_l_pafrac
 #' @export
-lsm_l_pafrac.RasterLayer <- function(landscape, directions = 8, verbose = TRUE) {
+lsm_l_pafrac.RasterLayer <- function(landscape, directions = 8, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_pafrac_calc,
                      directions = directions,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -69,12 +72,14 @@ lsm_l_pafrac.RasterLayer <- function(landscape, directions = 8, verbose = TRUE) 
 
 #' @name lsm_l_pafrac
 #' @export
-lsm_l_pafrac.RasterStack <- function(landscape, directions = 8, verbose = TRUE) {
+lsm_l_pafrac.RasterStack <- function(landscape, directions = 8, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_pafrac_calc,
                      directions = directions,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -86,12 +91,14 @@ lsm_l_pafrac.RasterStack <- function(landscape, directions = 8, verbose = TRUE) 
 
 #' @name lsm_l_pafrac
 #' @export
-lsm_l_pafrac.RasterBrick <- function(landscape, directions = 8, verbose = TRUE) {
+lsm_l_pafrac.RasterBrick <- function(landscape, directions = 8, verbose = TRUE,
+                                     n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_pafrac_calc,
                      directions = directions,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -103,14 +110,16 @@ lsm_l_pafrac.RasterBrick <- function(landscape, directions = 8, verbose = TRUE) 
 
 #' @name lsm_l_pafrac
 #' @export
-lsm_l_pafrac.stars <- function(landscape, directions = 8, verbose = TRUE) {
+lsm_l_pafrac.stars <- function(landscape, directions = 8, verbose = TRUE,
+                               n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_pafrac_calc,
                      directions = directions,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -122,12 +131,14 @@ lsm_l_pafrac.stars <- function(landscape, directions = 8, verbose = TRUE) {
 
 #' @name lsm_l_pafrac
 #' @export
-lsm_l_pafrac.list <- function(landscape, directions = 8, verbose = TRUE) {
+lsm_l_pafrac.list <- function(landscape, directions = 8, verbose = TRUE,
+                              n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_pafrac_calc,
                      directions = directions,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -137,7 +148,8 @@ lsm_l_pafrac.list <- function(landscape, directions = 8, verbose = TRUE) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_pafrac_calc <- function(landscape, directions, verbose, resolution = NULL){
+lsm_l_pafrac_calc <- function(landscape, directions, verbose, resolution = NULL,
+                              n_cores){
 
     # convert to matrix
     if(class(landscape) != "matrix") {
@@ -153,7 +165,8 @@ lsm_l_pafrac_calc <- function(landscape, directions, verbose, resolution = NULL)
     # get patch perimeter
     perimeter_patch <- lsm_p_perim_calc(landscape,
                                         directions = directions,
-                                        resolution = resolution)
+                                        resolution = resolution,
+                                        n_cores = n_cores)
 
     # get number of patches for each class
     number_patches <- lsm_c_np_calc(landscape,

@@ -13,13 +13,15 @@ lsm_p_contig(landscape, directions)
 
 \method{lsm_p_contig}{RasterLayer}(landscape, directions = 8)
 
-\method{lsm_p_contig}{RasterStack}(landscape, directions = 8)
+\method{lsm_p_contig}{RasterStack}(landscape, directions = 8,
+  n_cores = 1)
 
-\method{lsm_p_contig}{RasterBrick}(landscape, directions = 8)
+\method{lsm_p_contig}{RasterBrick}(landscape, directions = 8,
+  n_cores = 1)
 
 \method{lsm_p_contig}{stars}(landscape, directions = 8)
 
-\method{lsm_p_contig}{list}(landscape, directions = 8)
+\method{lsm_p_contig}{list}(landscape, directions = 8, n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}

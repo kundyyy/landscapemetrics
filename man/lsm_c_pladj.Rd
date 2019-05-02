@@ -9,20 +9,22 @@
 \alias{lsm_c_pladj.list}
 \title{PLADJ (class level)}
 \usage{
-lsm_c_pladj(landscape)
+lsm_c_pladj(landscape, n_cores)
 
-\method{lsm_c_pladj}{RasterLayer}(landscape)
+\method{lsm_c_pladj}{RasterLayer}(landscape, n_cores = 1)
 
-\method{lsm_c_pladj}{RasterStack}(landscape)
+\method{lsm_c_pladj}{RasterStack}(landscape, n_cores = 1)
 
-\method{lsm_c_pladj}{RasterBrick}(landscape)
+\method{lsm_c_pladj}{RasterBrick}(landscape, n_cores = 1)
 
-\method{lsm_c_pladj}{stars}(landscape)
+\method{lsm_c_pladj}{stars}(landscape, n_cores = 1)
 
-\method{lsm_c_pladj}{list}(landscape)
+\method{lsm_c_pladj}{list}(landscape, n_cores = 1)
 }
 \arguments{
-\item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
+\item{landscape}{Raster* Layer, Stack, Brick or a list of RasterLayers.}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

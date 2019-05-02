@@ -9,22 +9,28 @@
 \alias{lsm_l_te.list}
 \title{TE (landscape level)}
 \usage{
-lsm_l_te(landscape, count_boundary)
+lsm_l_te(landscape, count_boundary, n_cores)
 
-\method{lsm_l_te}{RasterLayer}(landscape, count_boundary = FALSE)
+\method{lsm_l_te}{RasterLayer}(landscape, count_boundary = FALSE,
+  n_cores = 1)
 
-\method{lsm_l_te}{RasterStack}(landscape, count_boundary = FALSE)
+\method{lsm_l_te}{RasterStack}(landscape, count_boundary = FALSE,
+  n_cores = 1)
 
-\method{lsm_l_te}{RasterBrick}(landscape, count_boundary = FALSE)
+\method{lsm_l_te}{RasterBrick}(landscape, count_boundary = FALSE,
+  n_cores = 1)
 
-\method{lsm_l_te}{stars}(landscape, count_boundary = FALSE)
+\method{lsm_l_te}{stars}(landscape, count_boundary = FALSE,
+  n_cores = 1)
 
-\method{lsm_l_te}{list}(landscape, count_boundary = FALSE)
+\method{lsm_l_te}{list}(landscape, count_boundary = FALSE, n_cores = 1)
 }
 \arguments{
-\item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
+\item{landscape}{Raster* Layer, Stack, Brick or a list of RasterLayers.}
 
 \item{count_boundary}{Include landscape boundary in edge length}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

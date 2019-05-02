@@ -5,6 +5,7 @@
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{SHAPE_{SD} = sd(SHAPE[patch_{ij}])}
@@ -47,15 +48,18 @@
 #' Wildl. Soc.Bull. 3:171-173.
 #'
 #' @export
-lsm_c_shape_sd <- function(landscape, directions) UseMethod("lsm_c_shape_sd")
+lsm_c_shape_sd <- function(landscape, directions,
+                           n_cores) UseMethod("lsm_c_shape_sd")
 
 #' @name lsm_c_shape_sd
 #' @export
-lsm_c_shape_sd.RasterLayer <- function(landscape, directions = 8) {
+lsm_c_shape_sd.RasterLayer <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_shape_sd_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -67,11 +71,13 @@ lsm_c_shape_sd.RasterLayer <- function(landscape, directions = 8) {
 
 #' @name lsm_c_shape_sd
 #' @export
-lsm_c_shape_sd.RasterStack <- function(landscape, directions = 8) {
+lsm_c_shape_sd.RasterStack <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_shape_sd_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -83,11 +89,13 @@ lsm_c_shape_sd.RasterStack <- function(landscape, directions = 8) {
 
 #' @name lsm_c_shape_sd
 #' @export
-lsm_c_shape_sd.RasterBrick <- function(landscape, directions = 8) {
+lsm_c_shape_sd.RasterBrick <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_shape_sd_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -99,13 +107,15 @@ lsm_c_shape_sd.RasterBrick <- function(landscape, directions = 8) {
 
 #' @name lsm_c_shape_sd
 #' @export
-lsm_c_shape_sd.stars <- function(landscape, directions = 8) {
+lsm_c_shape_sd.stars <- function(landscape, directions = 8,
+                                 n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_shape_sd_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -117,11 +127,13 @@ lsm_c_shape_sd.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_c_shape_sd
 #' @export
-lsm_c_shape_sd.list <- function(landscape, directions = 8) {
+lsm_c_shape_sd.list <- function(landscape, directions = 8,
+                                n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_c_shape_sd_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -131,12 +143,14 @@ lsm_c_shape_sd.list <- function(landscape, directions = 8) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_c_shape_sd_calc <- function(landscape, directions, resolution = NULL){
+lsm_c_shape_sd_calc <- function(landscape, directions, resolution = NULL,
+                                n_cores){
 
     # shape index for each patch
     shape <- lsm_p_shape_calc(landscape,
                               directions = directions,
-                              resolution = resolution)
+                              resolution = resolution,
+                              n_cores = n_cores)
 
     # calculate sd
     shape_sd <- stats::aggregate(x = shape[, 5], by = shape[, 2], FUN = stats::sd)

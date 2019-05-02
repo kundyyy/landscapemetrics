@@ -9,23 +9,25 @@
 \alias{lsm_l_lsi.list}
 \title{LSI (landscape level)}
 \usage{
-lsm_l_lsi(landscape, directions)
+lsm_l_lsi(landscape, directions, n_cores = n_cores)
 
-\method{lsm_l_lsi}{RasterLayer}(landscape, directions = 8)
+\method{lsm_l_lsi}{RasterLayer}(landscape, directions = 8, n_cores = 1)
 
-\method{lsm_l_lsi}{RasterStack}(landscape, directions = 8)
+\method{lsm_l_lsi}{RasterStack}(landscape, directions = 8, n_cores = 1)
 
-\method{lsm_l_lsi}{RasterBrick}(landscape, directions = 8)
+\method{lsm_l_lsi}{RasterBrick}(landscape, directions = 8, n_cores = 1)
 
-\method{lsm_l_lsi}{stars}(landscape, directions = 8)
+\method{lsm_l_lsi}{stars}(landscape, directions = 8, n_cores = 1)
 
-\method{lsm_l_lsi}{list}(landscape, directions = 8)
+\method{lsm_l_lsi}{list}(landscape, directions = 8, n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
 
 \item{directions}{The number of directions in which patches should be
 connected: 4 (rook's case) or 8 (queen's case).}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

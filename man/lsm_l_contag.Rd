@@ -9,22 +9,27 @@
 \alias{lsm_l_contag.list}
 \title{CONTAG (landscape level)}
 \usage{
-lsm_l_contag(landscape, verbose)
+lsm_l_contag(landscape, verbose, n_cores)
 
-\method{lsm_l_contag}{RasterLayer}(landscape, verbose = TRUE)
+\method{lsm_l_contag}{RasterLayer}(landscape, verbose = TRUE,
+  n_cores = 1)
 
-\method{lsm_l_contag}{RasterStack}(landscape, verbose = TRUE)
+\method{lsm_l_contag}{RasterStack}(landscape, verbose = TRUE,
+  n_cores = 1)
 
-\method{lsm_l_contag}{RasterBrick}(landscape, verbose = TRUE)
+\method{lsm_l_contag}{RasterBrick}(landscape, verbose = TRUE,
+  n_cores = 1)
 
-\method{lsm_l_contag}{stars}(landscape, verbose = TRUE)
+\method{lsm_l_contag}{stars}(landscape, verbose = TRUE, n_cores = 1)
 
-\method{lsm_l_contag}{list}(landscape, verbose = TRUE)
+\method{lsm_l_contag}{list}(landscape, verbose = TRUE, n_cores = 1)
 }
 \arguments{
-\item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
+\item{landscape}{Raster* Layer, Stack, Brick or a list of RasterLayers.}
 
 \item{verbose}{Print warning message if not sufficient patches are present}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

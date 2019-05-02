@@ -178,7 +178,8 @@ lsm_p_perim_calc <- function(landscape, directions, resolution = NULL, n_cores) 
 
             # get coocurrence matrix
             neighbour_matrix <- rcpp_get_coocurrence_matrix(landscape_labeled,
-                                                            directions = as.matrix(4), n_cores)
+                                                            directions = as.matrix(4),
+                                                            n_cores)
 
             # get adjacencies between patches and background cells (-999 always first row of matrix) and convert to perimeter
             perimeter_patch_ij <- neighbour_matrix[1, 2:ncol(neighbour_matrix)] * resolution_x

@@ -9,20 +9,22 @@
 \alias{lsm_c_pafrac.list}
 \title{PAFRAC  (class level)}
 \usage{
-lsm_c_pafrac(landscape, directions, verbose)
+lsm_c_pafrac(landscape, directions, verbose, n_cores)
 
 \method{lsm_c_pafrac}{RasterLayer}(landscape, directions = 8,
-  verbose = TRUE)
+  verbose = TRUE, n_cores = 1)
 
 \method{lsm_c_pafrac}{RasterStack}(landscape, directions = 8,
-  verbose = TRUE)
+  verbose = TRUE, n_cores = 1)
 
 \method{lsm_c_pafrac}{RasterBrick}(landscape, directions = 8,
-  verbose = TRUE)
+  verbose = TRUE, n_cores = 1)
 
-\method{lsm_c_pafrac}{stars}(landscape, directions = 8, verbose = TRUE)
+\method{lsm_c_pafrac}{stars}(landscape, directions = 8, verbose = TRUE,
+  n_cores = 1)
 
-\method{lsm_c_pafrac}{list}(landscape, directions = 8, verbose = TRUE)
+\method{lsm_c_pafrac}{list}(landscape, directions = 8, verbose = TRUE,
+  n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
@@ -31,6 +33,8 @@ lsm_c_pafrac(landscape, directions, verbose)
 connected: 4 (rook's case) or 8 (queen's case).}
 
 \item{verbose}{Print warning message if not sufficient patches are present}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

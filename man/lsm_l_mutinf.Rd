@@ -9,22 +9,22 @@
 \alias{lsm_l_mutinf.list}
 \title{MUTINF (landscape level)}
 \usage{
-lsm_l_mutinf(landscape, neighbourhood, ordered, base)
+lsm_l_mutinf(landscape, neighbourhood, ordered, base, n_cores)
 
 \method{lsm_l_mutinf}{RasterLayer}(landscape, neighbourhood = 4,
-  ordered = TRUE, base = "log2")
+  ordered = TRUE, base = "log2", n_cores = 1)
 
 \method{lsm_l_mutinf}{RasterStack}(landscape, neighbourhood = 4,
-  ordered = TRUE, base = "log2")
+  ordered = TRUE, base = "log2", n_cores = 1)
 
 \method{lsm_l_mutinf}{RasterBrick}(landscape, neighbourhood = 4,
-  ordered = TRUE, base = "log2")
+  ordered = TRUE, base = "log2", n_cores = 1)
 
 \method{lsm_l_mutinf}{stars}(landscape, neighbourhood = 4,
-  ordered = TRUE, base = "log2")
+  ordered = TRUE, base = "log2", n_cores = 1)
 
 \method{lsm_l_mutinf}{list}(landscape, neighbourhood = 4,
-  ordered = TRUE, base = "log2")
+  ordered = TRUE, base = "log2", n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
@@ -39,6 +39,8 @@ The default is TRUE.}
 \item{base}{The unit in which entropy is measured.
 The default is "log2", which compute entropy in "bits".
 "log" and "log10" can be also used.}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

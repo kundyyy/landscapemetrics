@@ -9,23 +9,28 @@
 \alias{lsm_c_frac_sd.list}
 \title{FRAC_SD (class level)}
 \usage{
-lsm_c_frac_sd(landscape, directions)
+lsm_c_frac_sd(landscape, directions, n_cores)
 
-\method{lsm_c_frac_sd}{RasterLayer}(landscape, directions = 8)
+\method{lsm_c_frac_sd}{RasterLayer}(landscape, directions = 8,
+  n_cores = 1)
 
-\method{lsm_c_frac_sd}{RasterStack}(landscape, directions = 8)
+\method{lsm_c_frac_sd}{RasterStack}(landscape, directions = 8,
+  n_cores = 1)
 
-\method{lsm_c_frac_sd}{RasterBrick}(landscape, directions = 8)
+\method{lsm_c_frac_sd}{RasterBrick}(landscape, directions = 8,
+  n_cores = 1)
 
-\method{lsm_c_frac_sd}{stars}(landscape, directions = 8)
+\method{lsm_c_frac_sd}{stars}(landscape, directions = 8, n_cores = 1)
 
-\method{lsm_c_frac_sd}{list}(landscape, directions = 8)
+\method{lsm_c_frac_sd}{list}(landscape, directions = 8, n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
 
 \item{directions}{The number of directions in which patches should be
 connected: 4 (rook's case) or 8 (queen's case).}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

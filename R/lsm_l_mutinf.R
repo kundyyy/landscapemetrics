@@ -54,7 +54,7 @@ lsm_l_mutinf.RasterLayer <- function(landscape,
                      neighbourhood = neighbourhood,
                      ordered = ordered,
                      base = base,
-                     n_cores = n_cores))
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))

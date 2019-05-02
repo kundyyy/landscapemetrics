@@ -4,6 +4,7 @@
 #'
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param directions The number of directions in which patches should be connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{COHESION = 1 - (\frac{\sum \limits_{i = 1}^{m} \sum \limits_{j = 1}^{n} p_{ij}} {\sum \limits_{i = 1}^{m} \sum \limits_{j = 1}^{n} p_{ij} \sqrt{a_{ij}}}) * (1 - \frac{1} {\sqrt{Z}}) ^ {-1} * 100}
@@ -39,16 +40,18 @@
 #' connectivity. Ecology, 77(4), 1210-1225.
 #'
 #' @export
-lsm_l_cohesion <- function(landscape, directions)
+lsm_l_cohesion <- function(landscape, directions, n_cores)
     UseMethod("lsm_l_cohesion")
 
 #' @name lsm_l_cohesion
 #' @export
-lsm_l_cohesion.RasterLayer <- function(landscape, directions = 8) {
+lsm_l_cohesion.RasterLayer <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_cohesion_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -60,11 +63,13 @@ lsm_l_cohesion.RasterLayer <- function(landscape, directions = 8) {
 
 #' @name lsm_l_cohesion
 #' @export
-lsm_l_cohesion.RasterStack <- function(landscape, directions = 8) {
+lsm_l_cohesion.RasterStack <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_cohesion_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -76,11 +81,13 @@ lsm_l_cohesion.RasterStack <- function(landscape, directions = 8) {
 
 #' @name lsm_l_cohesion
 #' @export
-lsm_l_cohesion.RasterBrick <- function(landscape, directions = 8) {
+lsm_l_cohesion.RasterBrick <- function(landscape, directions = 8,
+                                       n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_cohesion_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -92,13 +99,15 @@ lsm_l_cohesion.RasterBrick <- function(landscape, directions = 8) {
 
 #' @name lsm_l_cohesion
 #' @export
-lsm_l_cohesion.stars <- function(landscape, directions = 8) {
+lsm_l_cohesion.stars <- function(landscape, directions = 8,
+                                 n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_cohesion_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -110,11 +119,13 @@ lsm_l_cohesion.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_l_cohesion
 #' @export
-lsm_l_cohesion.list <- function(landscape, directions = 8) {
+lsm_l_cohesion.list <- function(landscape, directions = 8,
+                                n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_cohesion_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -124,7 +135,8 @@ lsm_l_cohesion.list <- function(landscape, directions = 8) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_cohesion_calc <- function(landscape, directions, resolution = NULL) {
+lsm_l_cohesion_calc <- function(landscape, directions, resolution = NULL,
+                                n_cores) {
 
     # convert to raster to matrix
     if(class(landscape) != "matrix") {
@@ -145,7 +157,8 @@ lsm_l_cohesion_calc <- function(landscape, directions, resolution = NULL) {
     # get perim for each patch
     perim_patch <- lsm_p_perim_calc(landscape,
                                     directions = directions,
-                                    resolution = resolution)
+                                    resolution = resolution,
+                                    n_cores = n_cores)
 
     # denominator for cohesion (perim / n_cells) for landscape
     denominator <- sum(perim_patch$value * sqrt(ncells_patch$value))

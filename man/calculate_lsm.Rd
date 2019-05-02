@@ -11,41 +11,41 @@
 \usage{
 calculate_lsm(landscape, level, metric, name, type, what, directions,
   count_boundary, consider_boundary, edge_depth, classes_max,
-  neighbourhood, ordered, base, full_name, verbose, progress)
+  neighbourhood, ordered, base, n_cores, full_name, verbose, progress)
 
 \method{calculate_lsm}{RasterLayer}(landscape, level = NULL,
   metric = NULL, name = NULL, type = NULL, what = NULL,
   directions = 8, count_boundary = FALSE, consider_boundary = FALSE,
   edge_depth = 1, classes_max = NULL, neighbourhood = 4,
-  ordered = TRUE, base = "log2", full_name = FALSE, verbose = TRUE,
-  progress = FALSE)
+  ordered = TRUE, base = "log2", n_cores = 1, full_name = FALSE,
+  verbose = TRUE, progress = FALSE)
 
 \method{calculate_lsm}{RasterStack}(landscape, level = NULL,
   metric = NULL, name = NULL, type = NULL, what = NULL,
   directions = 8, count_boundary = FALSE, consider_boundary = FALSE,
   edge_depth = 1, classes_max = NULL, neighbourhood = 4,
-  ordered = TRUE, base = "log2", full_name = FALSE, verbose = TRUE,
-  progress = FALSE)
+  ordered = TRUE, base = "log2", n_cores = 1, full_name = FALSE,
+  verbose = TRUE, progress = FALSE)
 
 \method{calculate_lsm}{RasterBrick}(landscape, level = NULL,
   metric = NULL, name = NULL, type = NULL, what = NULL,
   directions = 8, count_boundary = FALSE, consider_boundary = FALSE,
   edge_depth = 1, classes_max = NULL, neighbourhood = 4,
-  ordered = TRUE, base = "log2", full_name = FALSE, verbose = TRUE,
-  progress = FALSE)
+  ordered = TRUE, base = "log2", n_cores = 1, full_name = FALSE,
+  verbose = TRUE, progress = FALSE)
 
 \method{calculate_lsm}{stars}(landscape, level = NULL, metric = NULL,
   name = NULL, type = NULL, what = NULL, directions = 8,
   count_boundary = FALSE, consider_boundary = FALSE, edge_depth = 1,
   classes_max = NULL, neighbourhood = 4, ordered = TRUE,
-  base = "log2", full_name = FALSE, verbose = TRUE,
+  base = "log2", n_cores = 1, full_name = FALSE, verbose = TRUE,
   progress = FALSE)
 
 \method{calculate_lsm}{list}(landscape, level = NULL, metric = NULL,
   name = NULL, type = NULL, what = NULL, directions = 8,
   count_boundary = FALSE, consider_boundary = FALSE, edge_depth = 1,
   classes_max = NULL, neighbourhood = 4, ordered = TRUE,
-  base = "log2", full_name = FALSE, verbose = TRUE,
+  base = "log2", n_cores = 1, full_name = FALSE, verbose = TRUE,
   progress = FALSE)
 }
 \arguments{
@@ -83,6 +83,8 @@ The default is TRUE.}
 
 \item{base}{The unit in which entropy is measured. The default is "log2",
 which compute entropy in "bits". "log" and "log10" can be also used.}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 
 \item{full_name}{Should the full names of all functions be included in the
 tibble.}

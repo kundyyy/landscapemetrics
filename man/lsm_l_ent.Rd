@@ -9,20 +9,22 @@
 \alias{lsm_l_ent.list}
 \title{ENT (landscape level)}
 \usage{
-lsm_l_ent(landscape, neighbourhood, base)
+lsm_l_ent(landscape, neighbourhood, base, n_cores)
 
 \method{lsm_l_ent}{RasterLayer}(landscape, neighbourhood = 4,
-  base = "log2")
+  base = "log2", n_cores = 1)
 
 \method{lsm_l_ent}{RasterStack}(landscape, neighbourhood = 4,
-  base = "log2")
+  base = "log2", n_cores = 1)
 
 \method{lsm_l_ent}{RasterBrick}(landscape, neighbourhood = 4,
-  base = "log2")
+  base = "log2", n_cores = 1)
 
-\method{lsm_l_ent}{stars}(landscape, neighbourhood = 4, base = "log2")
+\method{lsm_l_ent}{stars}(landscape, neighbourhood = 4, base = "log2",
+  n_cores = 1)
 
-\method{lsm_l_ent}{list}(landscape, neighbourhood = 4, base = "log2")
+\method{lsm_l_ent}{list}(landscape, neighbourhood = 4, base = "log2",
+  n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
@@ -33,6 +35,8 @@ lsm_l_ent(landscape, neighbourhood, base)
 \item{base}{The unit in which entropy is measured.
 The default is "log2", which compute entropy in "bits".
 "log" and "log10" can be also used.}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 tibble

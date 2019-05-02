@@ -5,6 +5,7 @@
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{nLSI = \frac{e_{i}} {\min e_{i}}}
@@ -42,15 +43,17 @@
 #' Wildl. Soc.Bull. 3:171-173.
 #'
 #' @export
-lsm_c_nlsi <- function(landscape, directions) UseMethod("lsm_c_nlsi")
+lsm_c_nlsi <- function(landscape, directions, n_cores) UseMethod("lsm_c_nlsi")
 
 #' @name lsm_c_nlsi
 #' @export
-lsm_c_nlsi.RasterLayer <- function(landscape, directions = 8) {
+lsm_c_nlsi.RasterLayer <- function(landscape, directions = 8,
+                                   n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_nlsi_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -62,11 +65,13 @@ lsm_c_nlsi.RasterLayer <- function(landscape, directions = 8) {
 
 #' @name lsm_c_nlsi
 #' @export
-lsm_c_nlsi.RasterStack <- function(landscape, directions = 8) {
+lsm_c_nlsi.RasterStack <- function(landscape, directions = 8,
+                                   n_cores = n_cores) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_nlsi_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = 1)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -78,11 +83,13 @@ lsm_c_nlsi.RasterStack <- function(landscape, directions = 8) {
 
 #' @name lsm_c_nlsi
 #' @export
-lsm_c_nlsi.RasterBrick <- function(landscape, directions = 8) {
+lsm_c_nlsi.RasterBrick <- function(landscape, directions = 8,
+                                   n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_nlsi_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -94,13 +101,15 @@ lsm_c_nlsi.RasterBrick <- function(landscape, directions = 8) {
 
 #' @name lsm_c_nlsi
 #' @export
-lsm_c_nlsi.stars <- function(landscape, directions = 8) {
+lsm_c_nlsi.stars <- function(landscape, directions = 8,
+                             n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_c_nlsi_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -112,11 +121,13 @@ lsm_c_nlsi.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_c_nlsi
 #' @export
-lsm_c_nlsi.list <- function(landscape, directions = 8) {
+lsm_c_nlsi.list <- function(landscape, directions = 8,
+                            n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_c_nlsi_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -126,7 +137,8 @@ lsm_c_nlsi.list <- function(landscape, directions = 8) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_c_nlsi_calc <- function(landscape, directions, resolution = NULL) {
+lsm_c_nlsi_calc <- function(landscape, directions, resolution = NULL,
+                            n_cores) {
 
     # convert to matrix
     if(class(landscape) != "matrix"){
@@ -138,12 +150,14 @@ lsm_c_nlsi_calc <- function(landscape, directions, resolution = NULL) {
     class_edge <- lsm_c_te_calc(landscape,
                                 directions = directions,
                                 count_boundary = TRUE,
-                                resolution = resolution)
+                                resolution = resolution,
+                                n_cores = n_cores)
 
     # get total edge
     total_edge <- lsm_l_te_calc(landscape,
                                 count_boundary = TRUE,
-                                resolution = resolution)
+                                resolution = resolution,
+                                n_cores = n_cores)
 
     ai <- rcpp_get_composition_vector(landscape)
 

@@ -5,6 +5,7 @@
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{SHAPE = \frac{p_{ij}} {\min p_{ij}}}
@@ -48,15 +49,18 @@
 #' Wildl. Soc.Bull. 3:171-173.
 #'
 #' @export
-lsm_p_shape <- function(landscape, directions) UseMethod("lsm_p_shape")
+lsm_p_shape <- function(landscape, directions,
+                        n_cores) UseMethod("lsm_p_shape")
 
 #' @name lsm_p_shape
 #' @export
-lsm_p_shape.RasterLayer <- function(landscape, directions = 8) {
+lsm_p_shape.RasterLayer <- function(landscape, directions = 8,
+                                    n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_shape_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -68,11 +72,13 @@ lsm_p_shape.RasterLayer <- function(landscape, directions = 8) {
 
 #' @name lsm_p_shape
 #' @export
-lsm_p_shape.RasterStack <- function(landscape, directions = 8) {
+lsm_p_shape.RasterStack <- function(landscape, directions = 8,
+                                    n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_shape_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -84,11 +90,13 @@ lsm_p_shape.RasterStack <- function(landscape, directions = 8) {
 
 #' @name lsm_p_shape
 #' @export
-lsm_p_shape.RasterBrick <- function(landscape, directions = 8) {
+lsm_p_shape.RasterBrick <- function(landscape, directions = 8,
+                                    n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_shape_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -100,13 +108,15 @@ lsm_p_shape.RasterBrick <- function(landscape, directions = 8) {
 
 #' @name lsm_p_shape
 #' @export
-lsm_p_shape.stars <- function(landscape, directions = 8) {
+lsm_p_shape.stars <- function(landscape, directions = 8,
+                              n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_shape_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -118,11 +128,13 @@ lsm_p_shape.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_p_shape
 #' @export
-lsm_p_shape.list <- function(landscape, directions = 8) {
+lsm_p_shape.list <- function(landscape, directions = 8,
+                             n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_p_shape_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -132,7 +144,8 @@ lsm_p_shape.list <- function(landscape, directions = 8) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_p_shape_calc <- function(landscape, directions, resolution = NULL){
+lsm_p_shape_calc <- function(landscape, directions, resolution = NULL,
+                             n_cores){
 
     # convert to matrix
     if (class(landscape) != "matrix"){
@@ -143,7 +156,8 @@ lsm_p_shape_calc <- function(landscape, directions, resolution = NULL){
     # get perimeter of patches
     perimeter_patch <- lsm_p_perim_calc(landscape,
                                         directions = directions,
-                                        resolution = resolution)
+                                        resolution = resolution,
+                                        n_cores = n_cores)
 
     # get area of patches
     area_patch <- lsm_p_area_calc(landscape,

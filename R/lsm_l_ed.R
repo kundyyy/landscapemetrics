@@ -5,6 +5,7 @@
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param count_boundary Count landscape boundary as edge
 #' @param directions The number of directions in which patches should be connected: 4 (rook's case) or 8 (queen's case).
+#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{ED = \frac{E} {A} * 10000}
@@ -45,17 +46,19 @@
 #' web site: http://www.umass.edu/landeco/research/fragstats/fragstats.html
 #'
 #' @export
-lsm_l_ed <- function(landscape, count_boundary, directions) UseMethod("lsm_l_ed")
+lsm_l_ed <- function(landscape, count_boundary, directions, n_cores) UseMethod("lsm_l_ed")
 
 #' @name lsm_l_ed
 #' @export
 lsm_l_ed.RasterLayer <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_ed_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -68,12 +71,14 @@ lsm_l_ed.RasterLayer <- function(landscape,
 #' @name lsm_l_ed
 #' @export
 lsm_l_ed.RasterStack <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_ed_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -86,12 +91,14 @@ lsm_l_ed.RasterStack <- function(landscape,
 #' @name lsm_l_ed
 #' @export
 lsm_l_ed.RasterBrick <- function(landscape,
-                                 count_boundary = FALSE, directions = 8) {
+                                 count_boundary = FALSE, directions = 8,
+                                 n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_ed_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -104,14 +111,16 @@ lsm_l_ed.RasterBrick <- function(landscape,
 #' @name lsm_l_ed
 #' @export
 lsm_l_ed.stars <- function(landscape,
-                           count_boundary = FALSE, directions = 8) {
+                           count_boundary = FALSE, directions = 8,
+                           n_cores = 1) {
 
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_ed_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -124,12 +133,14 @@ lsm_l_ed.stars <- function(landscape,
 #' @name lsm_l_ed
 #' @export
 lsm_l_ed.list <- function(landscape,
-                          count_boundary = FALSE, directions = 8) {
+                          count_boundary = FALSE, directions = 8,
+                          n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_ed_calc,
                      count_boundary = count_boundary,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -139,7 +150,8 @@ lsm_l_ed.list <- function(landscape,
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_ed_calc <- function(landscape, count_boundary, directions, resolution = NULL) {
+lsm_l_ed_calc <- function(landscape, count_boundary, directions, resolution = NULL,
+                          n_cores) {
 
     # convert to matrix
     if(class(landscape) != "matrix") {
@@ -158,7 +170,8 @@ lsm_l_ed_calc <- function(landscape, count_boundary, directions, resolution = NU
     # get total edge
     edge_landscape <- lsm_l_te_calc(landscape,
                                     count_boundary = count_boundary,
-                                    resolution = resolution)
+                                    resolution = resolution,
+                                    n_cores = n_cores)
 
     # relative edge density
     ed <- edge_landscape$value / area_total

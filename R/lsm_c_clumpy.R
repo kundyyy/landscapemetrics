@@ -124,14 +124,16 @@ lsm_c_clumpy.list <- function(landscape, n_cores = 1) {
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_c_clumpy_calc <- function(landscape, resolution = NULL){
+lsm_c_clumpy_calc <- function(landscape, resolution = NULL,
+                              n_cores){
 
     # pad landscape to also include adjacencies at landscape boundary
     landscape_padded <- pad_raster(landscape, return_raster = FALSE)[[1]]
 
     # get coocurrence
     tb <- rcpp_get_coocurrence_matrix(landscape_padded,
-                                      directions = as.matrix(4))
+                                      directions = as.matrix(4),
+                                      n_cores = n_cores)
 
     # like adacencies are on the diagonal and remove adjacencies to boundary
     like_adjacencies <- diag(tb)[2:length(diag(tb))]
