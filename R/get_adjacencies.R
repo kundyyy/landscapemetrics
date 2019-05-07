@@ -48,7 +48,8 @@
 get_adjacencies <- function(landscape,
                             neighbourhood,
                             what,
-                            upper) UseMethod("get_adjacencies")
+                            upper,
+                            n_cores) UseMethod("get_adjacencies")
 
 #' @name get_adjacencies
 #' @export

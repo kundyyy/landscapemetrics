@@ -9,9 +9,10 @@
 \alias{lsm_p_contig.list}
 \title{CONTIG (patch level)}
 \usage{
-lsm_p_contig(landscape, directions)
+lsm_p_contig(landscape, directions, n_cores)
 
-\method{lsm_p_contig}{RasterLayer}(landscape, directions = 8)
+\method{lsm_p_contig}{RasterLayer}(landscape, directions = 8,
+  n_cores = 1)
 
 \method{lsm_p_contig}{RasterStack}(landscape, directions = 8,
   n_cores = 1)

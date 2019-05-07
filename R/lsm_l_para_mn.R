@@ -7,7 +7,6 @@
 #' connected: 4 (rook's case) or 8 (queen's case).
 #' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
-#'
 #' @details
 #' \deqn{PARA_{MN} = mean(PARA[patch_{ij}]}
 #' where \eqn{PARA[patch_{ij}]} is the perimeter area ratio of each patch.

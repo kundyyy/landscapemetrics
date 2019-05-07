@@ -45,10 +45,10 @@ land_true4 <- structure(c(986L, 96L, 304L, 96L, 1306L, 424L, 304L, 424L, 2904L),
                                                   c("1", "2", "3")),
                                              .Names = c("", "")))
 
-land_result1 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape), directions = as.matrix(4))
-land_result2 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(podlasie_ccilc), directions = as.matrix(4))
-land_result3 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape_na), directions = as.matrix(4))
-land_result4 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape), directions = as.matrix(8))
+land_result1 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape), directions = as.matrix(4), 1)
+land_result2 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(podlasie_ccilc), directions = as.matrix(4), 1)
+land_result3 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape_na), directions = as.matrix(4), 1)
+land_result4 <- landscapemetrics:::rcpp_get_coocurrence_matrix(raster::as.matrix(landscape), directions = as.matrix(8), 1)
 
 test_that("rcpp_get_coocurrence_matrix results are correct", {
     expect_equivalent(land_result1, land_true1)

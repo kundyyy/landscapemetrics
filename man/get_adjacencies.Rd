@@ -10,25 +10,25 @@
 \alias{get_adjacencies.matrix}
 \title{get_adjacencies}
 \usage{
-get_adjacencies(landscape, neighbourhood, what, upper)
+get_adjacencies(landscape, neighbourhood, what, upper, n_cores)
 
 \method{get_adjacencies}{RasterLayer}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 
 \method{get_adjacencies}{RasterStack}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 
 \method{get_adjacencies}{RasterBrick}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 
 \method{get_adjacencies}{stars}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 
 \method{get_adjacencies}{list}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 
 \method{get_adjacencies}{matrix}(landscape, neighbourhood = 4,
-  what = "full", upper = FALSE)
+  what = "full", upper = FALSE, n_cores = 1)
 }
 \arguments{
 \item{landscape}{Raster* Layer, Stack, Brick or a list of rasterLayers.}
@@ -43,6 +43,8 @@ where the ones define the neighbourhood. The default is 4.}
 
 \item{upper}{Logical value indicating whether the upper triangle of the adjacency matrix
 should be returned (default FALSE).}
+
+\item{n_cores}{Parameter to control number of cores to be used to calculate the adjacencies (default 1, single threaded). Max n_cores equals the core of your operating machine.}
 }
 \value{
 matrix with adjacencies between classes in a raster and between cells from the same class.
