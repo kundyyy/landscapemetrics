@@ -72,7 +72,7 @@ lsm_l_frac_mn.RasterLayer <- function(landscape, directions = 8,
 
 #' @name lsm_l_frac_mn
 #' @export
-lsm_l_frac_mn.RasterStack <- function(landscape, directions = 8, n_cores) {
+lsm_l_frac_mn.RasterStack <- function(landscape, directions = 8, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_frac_mn_calc,

@@ -53,7 +53,8 @@ lsm_l_iji.RasterLayer <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -69,7 +70,8 @@ lsm_l_iji.RasterStack <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -85,7 +87,8 @@ lsm_l_iji.RasterBrick <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -103,7 +106,8 @@ lsm_l_iji.stars <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_l_iji_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
@@ -119,7 +123,8 @@ lsm_l_iji.list <- function(landscape, verbose = TRUE, n_cores = 1) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_iji_calc,
-                     verbose = verbose)
+                     verbose = verbose,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))

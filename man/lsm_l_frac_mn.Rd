@@ -14,7 +14,8 @@ lsm_l_frac_mn(landscape, directions, n_cores)
 \method{lsm_l_frac_mn}{RasterLayer}(landscape, directions = 8,
   n_cores = 1)
 
-\method{lsm_l_frac_mn}{RasterStack}(landscape, directions = 8, n_cores)
+\method{lsm_l_frac_mn}{RasterStack}(landscape, directions = 8,
+  n_cores = 1)
 
 \method{lsm_l_frac_mn}{RasterBrick}(landscape, directions = 8,
   n_cores = 1)

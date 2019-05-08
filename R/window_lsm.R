@@ -460,6 +460,7 @@ calculate_lsm_focal <- function(landscape,
                              neighbourhood = 4,
                              ordered = TRUE,
                              base = "log2",
+                             n_cores = 1,
                              verbose = TRUE)
 
     # which arguments are needed

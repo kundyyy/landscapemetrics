@@ -5,7 +5,6 @@
 #' @param landscape Raster* Layer, Stack, Brick or a list of rasterLayers.
 #' @param directions The number of directions in which patches should be
 #' connected: 4 (rook's case) or 8 (queen's case).
-#' @param n_cores Parameter to control number of cores to be used to calculate the metric (default 1, single threaded). Max n_cores equals the core of your operating machine.
 #'
 #' @details
 #' \deqn{CONTIG =  \frac{\Bigg[\frac{\sum\limits_{r=1}^z  c_{ijr}}{a_{ij}}\Bigg] - 1 }{ v - 1} }
@@ -58,11 +57,11 @@
 #' Photogrammetric Engineering and Remote Sensing, 57(3), 285-293
 #'
 #' @export
-lsm_p_contig <- function(landscape, directions, n_cores) UseMethod("lsm_p_contig")
+lsm_p_contig <- function(landscape, directions) UseMethod("lsm_p_contig")
 
 #' @name lsm_p_contig
 #' @export
-lsm_p_contig.RasterLayer <- function(landscape, directions = 8, n_cores = 1) {
+lsm_p_contig.RasterLayer <- function(landscape, directions = 8) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_contig_calc,
@@ -78,7 +77,7 @@ lsm_p_contig.RasterLayer <- function(landscape, directions = 8, n_cores = 1) {
 
 #' @name lsm_p_contig
 #' @export
-lsm_p_contig.RasterStack <- function(landscape, directions = 8, n_cores = 1) {
+lsm_p_contig.RasterStack <- function(landscape, directions = 8) {
 
 
     result <- lapply(X = raster::as.list(landscape),
@@ -95,7 +94,7 @@ lsm_p_contig.RasterStack <- function(landscape, directions = 8, n_cores = 1) {
 
 #' @name lsm_p_contig
 #' @export
-lsm_p_contig.RasterBrick <- function(landscape, directions = 8, n_cores = 1) {
+lsm_p_contig.RasterBrick <- function(landscape, directions = 8) {
 
     result <- lapply(X = raster::as.list(landscape),
                      FUN = lsm_p_contig_calc,
@@ -129,7 +128,7 @@ lsm_p_contig.stars <- function(landscape, directions = 8) {
 
 #' @name lsm_p_contig
 #' @export
-lsm_p_contig.list <- function(landscape, directions = 8, n_cores = 1) {
+lsm_p_contig.list <- function(landscape, directions = 8) {
 
     result <- lapply(X = landscape,
                      FUN = lsm_p_contig_calc,

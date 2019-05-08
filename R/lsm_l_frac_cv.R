@@ -134,7 +134,8 @@ lsm_l_frac_cv.list <- function(landscape, directions = 8,
 
     result <- lapply(X = landscape,
                      FUN = lsm_l_frac_cv_calc,
-                     directions = directions)
+                     directions = directions,
+                     n_cores = n_cores)
 
     layer <- rep(seq_along(result),
                  vapply(result, nrow, FUN.VALUE = integer(1)))
