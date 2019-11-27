@@ -41,7 +41,7 @@ lsm_l_ent.RasterLayer <- function(landscape,
                                   base = "log2") {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_ent_calc,
+                     FUN = lsm_l_ent.default,
                      neighbourhood = neighbourhood,
                      base = base)
 
@@ -60,7 +60,7 @@ lsm_l_ent.RasterStack <- function(landscape,
                                   base = "log2") {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_ent_calc,
+                     FUN = lsm_l_ent.default,
                      neighbourhood = neighbourhood,
                      base = base)
 
@@ -79,7 +79,7 @@ lsm_l_ent.RasterBrick <- function(landscape,
                                   base = "log2") {
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_ent_calc,
+                     FUN = lsm_l_ent.default,
                      neighbourhood = neighbourhood,
                      base = base)
 
@@ -100,7 +100,7 @@ lsm_l_ent.stars <- function(landscape,
     landscape <- methods::as(landscape, "Raster")
 
     result <- lapply(X = raster::as.list(landscape),
-                     FUN = lsm_l_ent_calc,
+                     FUN = lsm_l_ent.default,
                      neighbourhood = neighbourhood,
                      base = base)
 
@@ -119,7 +119,7 @@ lsm_l_ent.list <- function(landscape,
                            base = "log2") {
 
     result <- lapply(X = landscape,
-                     FUN = lsm_l_ent_calc,
+                     FUN = lsm_l_ent.default,
                      neighbourhood = neighbourhood,
                      base = base)
 
@@ -131,7 +131,7 @@ lsm_l_ent.list <- function(landscape,
     tibble::add_column(result, layer, .before = TRUE)
 }
 
-lsm_l_ent_calc <- function(landscape, neighbourhood, base){
+lsm_l_ent.default <- function(landscape, neighbourhood, base){
 
     # convert to matrix
     if (class(landscape) != "matrix") {
