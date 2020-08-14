@@ -1,0 +1,15 @@
+pandoc: '2.2'
+pkgdown: 1.5.1
+pkgdown_sha: ~
+articles:
+  comparing_tools: articles/comparing_tools.html
+  general-background: articles/general-background.html
+  guide_moving_window: articles/guide_moving_window.html
+  guide_sample_lsm: articles/guide_sample_lsm.html
+  landscape_distribution_statistics: articles/landscape_distribution_statistics.html
+  new_metrics: articles/new_metrics.html
+  publication_record: articles/publication_record.html
+  utility: articles/utility.html
+  getstarted: getstarted.html
+last_built: 2020-08-14T12:07Z
+
